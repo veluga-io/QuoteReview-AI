@@ -25,18 +25,33 @@ export async function signOut(): Promise<void> {
 }
 
 export async function getCurrentUser(): Promise<User | null> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  console.log('🔍 getCurrentUser called')
 
-  if (!user) return null
+  try {
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Timeout: getUser took too long')), 5000)
+    })
 
-  const profile = await getProfile(user.id)
+    const getUserPromise = supabase.auth.getUser()
 
-  return {
-    id: user.id,
-    email: user.email!,
-    profile,
+    const { data: { user } } = await Promise.race([getUserPromise, timeoutPromise])
+
+    console.log('🔍 getUser result:', user ? 'user found' : 'no user')
+
+    if (!user) return null
+
+    console.log('🔍 fetching profile for user:', user.id)
+    const profile = await getProfile(user.id)
+    console.log('🔍 profile result:', profile ? 'profile found' : 'no profile')
+
+    return {
+      id: user.id,
+      email: user.email!,
+      profile,
+    }
+  } catch (error) {
+    console.error('🔍 getCurrentUser error:', error)
+    throw error
   }
 }
 

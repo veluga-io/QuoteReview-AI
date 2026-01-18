@@ -11,17 +11,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    authService.getCurrentUser().then(currentUser => {
-      setUser(currentUser)
-      setLoading(false)
-    })
+    console.log('🚀 AuthProvider mounting, loading user...')
+    authService
+      .getCurrentUser()
+      .then(currentUser => {
+        console.log('✅ User loaded:', currentUser ? 'logged in' : 'not logged in')
+        setUser(currentUser)
+        setLoading(false)
+      })
+      .catch(error => {
+        console.error('❌ Error loading user:', error)
+        setUser(null)
+        setLoading(false)
+      })
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
-        const currentUser = await authService.getCurrentUser()
-        setUser(currentUser)
+        try {
+          const currentUser = await authService.getCurrentUser()
+          setUser(currentUser)
+        } catch (error) {
+          console.error('Error in auth state change:', error)
+          setUser(null)
+        }
       } else {
         setUser(null)
       }
