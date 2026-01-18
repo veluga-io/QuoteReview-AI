@@ -10,6 +10,7 @@ import Templates from './pages/Templates'
 import TemplateNew from './pages/TemplateNew'
 import TemplateDetail from './pages/TemplateDetail'
 import Submissions from './pages/Submissions'
+import SubmissionResult from './pages/SubmissionResult'
 import DashboardLayout from './layouts/DashboardLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -38,6 +39,7 @@ function AppContent() {
               <Route path="templates/new" element={<TemplateNew />} />
               <Route path="templates/:id" element={<TemplateDetail />} />
               <Route path="submissions" element={<Submissions />} />
+              <Route path="submissions/:id" element={<SubmissionResult />} />
             </Route>
           </Routes>
         </BrowserRouter>
