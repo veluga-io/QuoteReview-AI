@@ -7,6 +7,8 @@ import './i18n'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Templates from './pages/Templates'
+import TemplateNew from './pages/TemplateNew'
+import TemplateDetail from './pages/TemplateDetail'
 import Submissions from './pages/Submissions'
 import DashboardLayout from './layouts/DashboardLayout'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -33,6 +35,8 @@ function AppContent() {
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="templates" element={<Templates />} />
+              <Route path="templates/new" element={<TemplateNew />} />
+              <Route path="templates/:id" element={<TemplateDetail />} />
               <Route path="submissions" element={<Submissions />} />
             </Route>
           </Routes>
