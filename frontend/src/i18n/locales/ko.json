@@ -1,0 +1,45 @@
+{
+  "app": {
+    "title": "견적서 검수 시스템",
+    "loading": "로딩 중..."
+  },
+  "auth": {
+    "login": "로그인",
+    "logout": "로그아웃",
+    "email": "이메일",
+    "password": "비밀번호",
+    "loginError": "로그인에 실패했습니다"
+  },
+  "nav": {
+    "dashboard": "대시보드",
+    "templates": "템플릿 관리",
+    "submissions": "검증 요청",
+    "settings": "설정"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "welcomeMessage": "환영합니다"
+  },
+  "templates": {
+    "title": "템플릿 관리",
+    "create": "템플릿 생성",
+    "edit": "템플릿 수정",
+    "delete": "템플릿 삭제"
+  },
+  "submissions": {
+    "title": "검증 요청",
+    "upload": "파일 업로드",
+    "status": "상태",
+    "validate": "검증 시작"
+  },
+  "common": {
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "edit": "수정",
+    "create": "생성",
+    "search": "검색",
+    "filter": "필터",
+    "actions": "작업"
+  }
+}
