@@ -60,6 +60,7 @@ export default function DashboardLayout() {
 
   const drawer = (
     <Box>
+      11
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
           {t('app.title')}
