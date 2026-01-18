@@ -5,7 +5,8 @@
 -- ============================================================================
 -- 1. Extensions
 -- ============================================================================
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- pgcrypto는 Supabase에 기본으로 활성화되어 있으며 gen_random_uuid()를 제공합니다
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ============================================================================
 -- 2. Custom Types
@@ -22,7 +23,7 @@ CREATE TYPE finding_severity AS ENUM ('low', 'medium', 'high', 'critical');
 
 -- 3.1 Profiles 테이블 (사용자 프로필)
 CREATE TABLE profiles (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT NOT NULL,
   full_name TEXT NOT NULL,
@@ -33,7 +34,7 @@ CREATE TABLE profiles (
 
 -- 3.2 Templates 테이블 (표준 견적서 템플릿)
 CREATE TABLE templates (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   description TEXT,
   status template_status NOT NULL DEFAULT 'draft',
@@ -48,7 +49,7 @@ CREATE TABLE templates (
 
 -- 3.3 Submissions 테이블 (견적서 검증 요청)
 CREATE TABLE submissions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   template_id UUID NOT NULL REFERENCES templates(id) ON DELETE CASCADE,
   file_url TEXT NOT NULL, -- Supabase Storage URL (업로드된 견적서 파일)
   file_name TEXT NOT NULL,
@@ -63,7 +64,7 @@ CREATE TABLE submissions (
 
 -- 3.4 Findings 테이블 (검증 결과 - 발견 사항)
 CREATE TABLE findings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   submission_id UUID NOT NULL REFERENCES submissions(id) ON DELETE CASCADE,
   severity finding_severity NOT NULL,
   category TEXT NOT NULL, -- 'math', 'completeness', 'policy', 'consistency', 'ai_context', 'ai_pattern', 'ai_wording'
@@ -77,7 +78,7 @@ CREATE TABLE findings (
 
 -- 3.5 Audit Logs 테이블 (감사 로그 - Phase 2+ 준비)
 CREATE TABLE audit_logs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id),
   action TEXT NOT NULL, -- 'create', 'update', 'delete', 'approve', 'reject'
   resource_type TEXT NOT NULL, -- 'template', 'submission', 'finding'
