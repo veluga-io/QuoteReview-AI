@@ -1,8 +1,6 @@
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
   CircularProgress,
   Container,
@@ -79,13 +77,19 @@ export default function Templates() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          {t('templates.title', '템플릿 관리')}
-        </Typography>
+    <Container maxWidth="lg">
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Box>
+          <Typography variant="h3" component="h1" fontWeight={700} gutterBottom>
+            {t('templates.title', '템플릿 관리')}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            견적서 검증에 사용할 템플릿을 관리합니다
+          </Typography>
+        </Box>
         <Button
           variant="contained"
+          size="large"
           startIcon={<AddIcon />}
           onClick={() => navigate('/templates/new')}
         >
@@ -94,39 +98,73 @@ export default function Templates() {
       </Box>
 
       {templates.length === 0 ? (
-        <Card>
-          <CardContent>
-            <Typography variant="body1" color="text.secondary" align="center">
-              {t('templates.empty', '생성된 템플릿이 없습니다.')}
-            </Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-              <Button
-                variant="outlined"
-                startIcon={<AddIcon />}
-                onClick={() => navigate('/templates/new')}
-              >
-                {t('templates.createFirst', '첫 템플릿 생성하기')}
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
+        <Paper
+          sx={{
+            p: 6,
+            textAlign: 'center',
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          <Typography variant="h6" fontWeight={600} gutterBottom>
+            {t('templates.empty', '생성된 템플릿이 없습니다.')}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            첫 번째 템플릿을 생성하여 견적서 검증을 시작하세요
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/templates/new')}
+          >
+            {t('templates.createFirst', '첫 템플릿 생성하기')}
+          </Button>
+        </Paper>
       ) : (
-        <TableContainer component={Paper}>
+        <TableContainer
+          component={Paper}
+          sx={{
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+          }}
+        >
           <Table>
             <TableHead>
-              <TableRow>
-                <TableCell>{t('templates.name', '템플릿 이름')}</TableCell>
-                <TableCell>{t('templates.description', '설명')}</TableCell>
-                <TableCell>{t('templates.status', '상태')}</TableCell>
-                <TableCell>{t('templates.createdAt', '생성일')}</TableCell>
-                <TableCell align="right">{t('templates.actions', '작업')}</TableCell>
+              <TableRow sx={{ backgroundColor: 'grey.50' }}>
+                <TableCell sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                  {t('templates.name', '템플릿 이름')}
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                  {t('templates.description', '설명')}
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                  {t('templates.status', '상태')}
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                  {t('templates.createdAt', '생성일')}
+                </TableCell>
+                <TableCell align="right" sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                  {t('templates.actions', '작업')}
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {templates.map(template => (
-                <TableRow key={template.id} hover>
+                <TableRow
+                  key={template.id}
+                  hover
+                  sx={{
+                    cursor: 'pointer',
+                    '&:last-child td': { borderBottom: 0 },
+                  }}
+                  onClick={() => navigate(`/templates/${template.id}`)}
+                >
                   <TableCell>
-                    <Typography variant="body2" fontWeight="medium">
+                    <Typography variant="body1" fontWeight={600}>
                       {template.name}
                     </Typography>
                   </TableCell>
@@ -140,6 +178,7 @@ export default function Templates() {
                       label={getStatusLabel(template.status)}
                       color={getStatusColor(template.status)}
                       size="small"
+                      sx={{ fontWeight: 600 }}
                     />
                   </TableCell>
                   <TableCell>
@@ -147,20 +186,21 @@ export default function Templates() {
                       {formatDate(template.created_at)}
                     </Typography>
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="right" onClick={(e) => e.stopPropagation()}>
                     <IconButton
-                      size="small"
+                      size="medium"
                       onClick={() => navigate(`/templates/${template.id}`)}
                       title={t('templates.view', '상세 보기')}
+                      sx={{ mr: 1 }}
                     >
-                      <ViewIcon fontSize="small" />
+                      <ViewIcon />
                     </IconButton>
                     <IconButton
-                      size="small"
+                      size="medium"
                       onClick={() => navigate(`/templates/${template.id}/edit`)}
                       title={t('templates.edit', '수정')}
                     >
-                      <EditIcon fontSize="small" />
+                      <EditIcon />
                     </IconButton>
                   </TableCell>
                 </TableRow>

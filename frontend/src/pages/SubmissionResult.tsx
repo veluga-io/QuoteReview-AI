@@ -2,17 +2,12 @@ import { useEffect, useState } from 'react'
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
   CircularProgress,
   Container,
   Divider,
   Typography,
   Alert,
-  List,
-  ListItem,
-  ListItemText,
   Paper,
 } from '@mui/material'
 import {
@@ -162,185 +157,277 @@ export default function SubmissionResult() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/submissions')}>
-          {t('common.back', '돌아가기')}
-        </Button>
-      </Box>
+    <Container maxWidth="lg">
+      <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate('/submissions')}
+        sx={{ mb: 3, fontWeight: 600 }}
+      >
+        {t('common.back', '돌아가기')}
+      </Button>
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            {submission.overall_status && getStatusIcon(submission.overall_status)}
-            <Typography variant="h4" sx={{ ml: 1 }}>
-              검증 결과
-            </Typography>
-            {submission.overall_status && (
-              <Chip
-                label={getStatusLabel(submission.overall_status)}
-                color={getStatusColor(submission.overall_status)}
-                sx={{ ml: 2 }}
-              />
-            )}
-          </Box>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Typography variant="body2" color="text.secondary">
-            파일: {submission.file_name}
+      <Paper
+        sx={{
+          p: 4,
+          mb: 3,
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          {submission.overall_status && getStatusIcon(submission.overall_status)}
+          <Typography variant="h3" fontWeight={700} sx={{ ml: 1.5 }}>
+            검증 결과
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            템플릿: {submission.templates.name}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            상태: {submission.status === 'completed' ? '검증 완료' : submission.status === 'validating' ? '검증 중' : submission.status === 'failed' ? '검증 실패' : '업로드됨'}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            검증 완료: {submission.validated_at ? new Date(submission.validated_at).toLocaleString('ko-KR') : '-'}
-          </Typography>
-
-          {submission.metadata && typeof submission.metadata === 'object' && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle2" gutterBottom>
-                파싱된 메타데이터:
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {Object.entries(submission.metadata).map(([key, value]) => (
-                  <span key={key}>
-                    {key}: {String(value) || '(비어있음)'}<br />
-                  </span>
-                ))}
-              </Typography>
-            </Box>
+          {submission.overall_status && (
+            <Chip
+              label={getStatusLabel(submission.overall_status)}
+              color={getStatusColor(submission.overall_status)}
+              sx={{ ml: 2, fontWeight: 600, fontSize: '0.875rem' }}
+            />
           )}
-        </CardContent>
-      </Card>
+        </Box>
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            검증 프로세스
-          </Typography>
-          <List dense>
-            <ListItem>
-              <ListItemText
-                primary="1. 수학적 검증"
-                secondary="라인 항목 합계, 소계, 세금, 총액 계산 검증"
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="2. 필수 항목 검증"
-                secondary="템플릿에서 추출된 필수 필드가 모두 입력되었는지 확인"
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="3. 정책 규칙 검증"
-                secondary="할인율 상한, 기타 비즈니스 규칙 준수 확인"
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="4. 일관성 검증"
-                secondary="통화 일치, 날짜 논리 확인"
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="5. AI 보조 검증"
-                secondary="Gemini AI가 추가적인 논리적 오류와 개선 사항을 분석"
-              />
-            </ListItem>
-          </List>
-        </CardContent>
-      </Card>
+        <Divider sx={{ my: 3 }} />
+
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 3 }}>
+          <Box>
+            <Typography variant="caption" color="text.secondary" gutterBottom display="block">
+              파일명
+            </Typography>
+            <Typography variant="body1" fontWeight={500}>
+              {submission.file_name}
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="caption" color="text.secondary" gutterBottom display="block">
+              템플릿
+            </Typography>
+            <Typography variant="body1" fontWeight={500}>
+              {submission.templates.name}
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="caption" color="text.secondary" gutterBottom display="block">
+              상태
+            </Typography>
+            <Typography variant="body1" fontWeight={500}>
+              {submission.status === 'completed' ? '검증 완료' : submission.status === 'validating' ? '검증 중' : submission.status === 'failed' ? '검증 실패' : '업로드됨'}
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="caption" color="text.secondary" gutterBottom display="block">
+              검증 완료
+            </Typography>
+            <Typography variant="body1" fontWeight={500}>
+              {submission.validated_at ? new Date(submission.validated_at).toLocaleString('ko-KR') : '-'}
+            </Typography>
+          </Box>
+        </Box>
+
+        {submission.metadata && typeof submission.metadata === 'object' && (
+          <Box sx={{ mt: 4, pt: 3, borderTop: 1, borderColor: 'divider' }}>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              파싱된 메타데이터
+            </Typography>
+            <Box sx={{ mt: 2, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
+              {Object.entries(submission.metadata).map(([key, value]) => (
+                <Box key={key}>
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    {key}
+                  </Typography>
+                  <Typography variant="body2" fontWeight={500}>
+                    {String(value) || '(비어있음)'}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        )}
+      </Paper>
+
+      <Paper
+        sx={{
+          p: 4,
+          mb: 3,
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
+        <Typography variant="h5" fontWeight={600} gutterBottom>
+          검증 프로세스
+        </Typography>
+        <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
+            <Typography variant="body1" fontWeight={600} gutterBottom>
+              1. 수학적 검증
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              라인 항목 합계, 소계, 세금, 총액 계산 검증
+            </Typography>
+          </Box>
+          <Box sx={{ p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
+            <Typography variant="body1" fontWeight={600} gutterBottom>
+              2. 필수 항목 검증
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              템플릿에서 추출된 필수 필드가 모두 입력되었는지 확인
+            </Typography>
+          </Box>
+          <Box sx={{ p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
+            <Typography variant="body1" fontWeight={600} gutterBottom>
+              3. 정책 규칙 검증
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              할인율 상한, 기타 비즈니스 규칙 준수 확인
+            </Typography>
+          </Box>
+          <Box sx={{ p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
+            <Typography variant="body1" fontWeight={600} gutterBottom>
+              4. 일관성 검증
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              통화 일치, 날짜 논리 확인
+            </Typography>
+          </Box>
+          <Box sx={{ p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
+            <Typography variant="body1" fontWeight={600} gutterBottom>
+              5. AI 보조 검증
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Gemini AI가 추가적인 논리적 오류와 개선 사항을 분석
+            </Typography>
+          </Box>
+        </Box>
+      </Paper>
 
       {findings.length === 0 ? (
-        <Alert severity="success" icon={<CheckIcon />}>
-          <Typography variant="h6" gutterBottom>
-            ✅ 검증 통과
-          </Typography>
-          <Typography variant="body2" paragraph>
+        <Paper
+          sx={{
+            p: 4,
+            borderRadius: 3,
+            border: '2px solid',
+            borderColor: 'success.main',
+            backgroundColor: 'success.lighter',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <CheckIcon color="success" sx={{ fontSize: 32, mr: 1.5 }} />
+            <Typography variant="h4" fontWeight={700} color="success.dark">
+              검증 통과
+            </Typography>
+          </Box>
+          <Typography variant="body1" color="success.dark" paragraph>
             모든 검증 항목을 통과했습니다.
           </Typography>
-          <Divider sx={{ my: 2 }} />
-          <Typography variant="subtitle2" gutterBottom>
-            검증된 항목:
+          <Divider sx={{ my: 3, borderColor: 'success.main', opacity: 0.3 }} />
+          <Typography variant="h6" fontWeight={600} color="success.dark" gutterBottom>
+            검증된 항목
           </Typography>
-          <Typography variant="body2" component="div">
-            • 수학적 계산 (라인 항목, 소계, 세금, 총액)<br />
-            • 템플릿 필수 필드 완전성<br />
-            • 정책 규칙 준수<br />
-            • 데이터 일관성<br />
-            • AI 논리 검증
-          </Typography>
-        </Alert>
+          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body1" color="success.dark">
+              ✓ 수학적 계산 (라인 항목, 소계, 세금, 총액)
+            </Typography>
+            <Typography variant="body1" color="success.dark">
+              ✓ 템플릿 필수 필드 완전성
+            </Typography>
+            <Typography variant="body1" color="success.dark">
+              ✓ 정책 규칙 준수
+            </Typography>
+            <Typography variant="body1" color="success.dark">
+              ✓ 데이터 일관성
+            </Typography>
+            <Typography variant="body1" color="success.dark">
+              ✓ AI 논리 검증
+            </Typography>
+          </Box>
+        </Paper>
       ) : (
         <>
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                발견 사항 요약
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                {Object.entries(groupedFindings).map(([severity, items]) => (
-                  <Chip
-                    key={severity}
-                    label={`${getSeverityLabel(severity as Finding['severity'])}: ${items.length}건`}
-                    color={getSeverityColor(severity as Finding['severity'])}
-                  />
-                ))}
-              </Box>
-            </CardContent>
-          </Card>
+          <Paper
+            sx={{
+              p: 4,
+              mb: 3,
+              borderRadius: 3,
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            <Typography variant="h5" fontWeight={600} gutterBottom>
+              발견 사항 요약
+            </Typography>
+            <Box sx={{ mt: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              {Object.entries(groupedFindings).map(([severity, items]) => (
+                <Chip
+                  key={severity}
+                  label={`${getSeverityLabel(severity as Finding['severity'])}: ${items.length}건`}
+                  color={getSeverityColor(severity as Finding['severity'])}
+                  sx={{ fontWeight: 600, fontSize: '0.875rem', py: 2.5, px: 1 }}
+                />
+              ))}
+            </Box>
+          </Paper>
 
           {(['critical', 'high', 'medium', 'low'] as const).map(severity => {
             const items = groupedFindings[severity]
             if (!items || items.length === 0) return null
 
             return (
-              <Paper key={severity} sx={{ mb: 2, p: 2 }}>
-                <Typography variant="h6" gutterBottom>
+              <Paper
+                key={severity}
+                sx={{
+                  mb: 3,
+                  p: 4,
+                  borderRadius: 3,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                   <Chip
                     label={getSeverityLabel(severity)}
                     color={getSeverityColor(severity)}
-                    size="small"
-                    sx={{ mr: 1 }}
+                    sx={{ mr: 2, fontWeight: 600 }}
                   />
-                  {getSeverityLabel(severity)} ({items.length}건)
-                </Typography>
-                <List>
+                  <Typography variant="h5" fontWeight={600}>
+                    {getSeverityLabel(severity)} ({items.length}건)
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {items.map((finding, index) => (
-                    <ListItem key={finding.id || index} alignItems="flex-start">
-                      <ListItemText
-                        primary={finding.message}
-                        secondary={
-                          <>
-                            {finding.location && (
-                              <Typography component="span" variant="body2" color="text.secondary">
-                                위치: {finding.location}
-                                <br />
-                              </Typography>
-                            )}
-                            {finding.expected_value && finding.actual_value && (
-                              <Typography component="span" variant="body2" color="text.secondary">
-                                예상값: {finding.expected_value} / 실제값: {finding.actual_value}
-                                <br />
-                              </Typography>
-                            )}
-                            {finding.recommendation && (
-                              <Typography component="span" variant="body2" color="primary">
-                                권장 조치: {finding.recommendation}
-                              </Typography>
-                            )}
-                          </>
-                        }
-                      />
-                    </ListItem>
+                    <Box
+                      key={finding.id || index}
+                      sx={{
+                        p: 3,
+                        backgroundColor: 'grey.50',
+                        borderRadius: 2,
+                        borderLeft: '4px solid',
+                        borderLeftColor: `${getSeverityColor(severity)}.main`,
+                      }}
+                    >
+                      <Typography variant="body1" fontWeight={600} gutterBottom>
+                        {finding.message}
+                      </Typography>
+                      {finding.location && (
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                          <strong>위치:</strong> {finding.location}
+                        </Typography>
+                      )}
+                      {finding.expected_value && finding.actual_value && (
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                          <strong>예상값:</strong> {finding.expected_value} / <strong>실제값:</strong> {finding.actual_value}
+                        </Typography>
+                      )}
+                      {finding.recommendation && (
+                        <Typography variant="body2" color="primary.main" fontWeight={500} sx={{ mt: 2 }}>
+                          💡 {finding.recommendation}
+                        </Typography>
+                      )}
+                    </Box>
                   ))}
-                </List>
+                </Box>
               </Paper>
             )
           })}

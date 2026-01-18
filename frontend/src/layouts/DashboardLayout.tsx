@@ -59,15 +59,15 @@ export default function DashboardLayout() {
   }
 
   const drawer = (
-    <Box>
-      <Toolbar>
-        <Typography variant="h6" noWrap component="div">
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Toolbar sx={{ py: 3, px: 3 }}>
+        <Typography variant="h5" noWrap component="div" fontWeight={700}>
           {t('app.title')}
         </Typography>
       </Toolbar>
-      <List>
+      <List sx={{ px: 2, flex: 1 }}>
         {menuItems.map(item => (
-          <ListItem key={item.key} disablePadding>
+          <ListItem key={item.key} disablePadding sx={{ mb: 1 }}>
             <ListItemButton
               selected={location.pathname === item.path}
               onClick={() => {
@@ -76,9 +76,29 @@ export default function DashboardLayout() {
                   setMobileOpen(false)
                 }
               }}
+              sx={{
+                borderRadius: 2,
+                py: 1.5,
+                '&.Mui-selected': {
+                  backgroundColor: 'primary.main',
+                  color: 'primary.contrastText',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'primary.dark',
+                  },
+                  '& .MuiListItemIcon-root': {
+                    color: 'primary.contrastText',
+                  },
+                },
+              }}
             >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={t(item.label)} />
+              <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
+              <ListItemText
+                primary={t(item.label)}
+                slotProps={{
+                  primary: { fontWeight: location.pathname === item.path ? 600 : 400 }
+                }}
+              />
             </ListItemButton>
           </ListItem>
         ))}
@@ -90,12 +110,17 @@ export default function DashboardLayout() {
     <Box sx={{ display: 'flex' }}>
       <AppBar
         position="fixed"
+        elevation={0}
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
+          borderBottom: 1,
+          borderColor: 'divider',
+          backgroundColor: 'background.paper',
+          color: 'text.primary',
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{ py: 1.5 }}>
           <IconButton
             color="inherit"
             edge="start"
@@ -104,11 +129,16 @@ export default function DashboardLayout() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="body1" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
             {user?.profile?.full_name || user?.email}
           </Typography>
           <ThemeToggle />
-          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
+          <Button
+            color="inherit"
+            onClick={handleLogout}
+            startIcon={<LogoutIcon />}
+            sx={{ ml: 2, fontWeight: 600 }}
+          >
             {t('auth.logout')}
           </Button>
         </Toolbar>
@@ -145,8 +175,10 @@ export default function DashboardLayout() {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 2, sm: 3, md: 4 },
           width: { md: `calc(100% - ${drawerWidth}px)` },
+          backgroundColor: 'background.default',
+          minHeight: '100vh',
         }}
       >
         <Toolbar />
