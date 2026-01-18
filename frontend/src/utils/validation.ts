@@ -150,24 +150,74 @@ export function validateCompleteness(
   const findings: FindingInsert[] = []
 
   // 템플릿에 정의된 필수 필드 검증
-  if (Array.isArray(template.required_fields)) {
+  if (Array.isArray(template.required_fields) && template.required_fields.length > 0) {
     template.required_fields.forEach((field: unknown) => {
-      if (typeof field === 'object' && field !== null && 'key' in field) {
-        const fieldKey = String(field.key)
-        const fieldLabel = 'label' in field ? String(field.label) : fieldKey
-        const value = quote.metadata[fieldKey]
+      if (typeof field === 'object' && field !== null && 'label' in field && 'field_type' in field) {
+        const fieldLabel = String(field.label)
+        const fieldType = String(field.field_type)
 
-        if (!value || (typeof value === 'string' && value.trim() === '')) {
-          findings.push({
-            submission_id: '',
-            severity: 'critical',
-            category: 'completeness',
-            message: `필수 항목 "${fieldLabel}"이(가) 누락되었습니다`,
-            location: '메타데이터',
-            expected_value: '값 필요',
-            actual_value: '누락',
-            recommendation: `"${fieldLabel}" 필드를 입력하세요.`,
-          })
+        // 메타데이터 필드 검증
+        if (fieldType === 'metadata') {
+          // 필드 레이블을 기반으로 메타데이터에서 값 찾기
+          const metadataKey = fieldLabel.toLowerCase()
+          let value: string | undefined
+
+          // 일반적인 필드 매핑
+          if (fieldLabel.includes('고객') || fieldLabel.toLowerCase().includes('customer')) {
+            value = quote.metadata.customer_name
+          } else if (fieldLabel.includes('견적번호') || fieldLabel.toLowerCase().includes('quote number')) {
+            value = quote.metadata.quote_number
+          } else if (fieldLabel.includes('견적일') || fieldLabel.toLowerCase().includes('quote date')) {
+            value = quote.metadata.quote_date
+          } else if (fieldLabel.includes('유효기한') || fieldLabel.toLowerCase().includes('valid until')) {
+            value = quote.metadata.valid_until
+          } else if (fieldLabel.includes('통화') || fieldLabel.toLowerCase().includes('currency')) {
+            value = quote.metadata.currency
+          } else {
+            // 직접 메타데이터에서 찾기
+            value = quote.metadata[metadataKey]
+          }
+
+          if (!value || (typeof value === 'string' && value.trim() === '')) {
+            findings.push({
+              submission_id: '',
+              severity: 'high',
+              category: 'completeness',
+              message: `템플릿 필수 필드 "${fieldLabel}"이(가) 누락되었습니다`,
+              location: '메타데이터',
+              expected_value: '값 필요',
+              actual_value: '누락',
+              recommendation: `"${fieldLabel}" 필드를 입력하세요.`,
+            })
+          }
+        }
+
+        // 총액 필드 검증
+        if (fieldType === 'total') {
+          let value: number | undefined
+
+          if (fieldLabel.includes('소계') || fieldLabel.toLowerCase().includes('subtotal')) {
+            value = quote.totals.subtotal
+          } else if (fieldLabel.includes('할인') || fieldLabel.toLowerCase().includes('discount')) {
+            value = quote.totals.discount_amount
+          } else if (fieldLabel.includes('세액') || fieldLabel.toLowerCase().includes('tax')) {
+            value = quote.totals.tax_amount
+          } else if (fieldLabel.includes('총액') || fieldLabel.toLowerCase().includes('total')) {
+            value = quote.totals.total
+          }
+
+          if (value === undefined || value === null) {
+            findings.push({
+              submission_id: '',
+              severity: 'high',
+              category: 'completeness',
+              message: `템플릿 필수 필드 "${fieldLabel}"이(가) 누락되었습니다`,
+              location: '총액',
+              expected_value: '값 필요',
+              actual_value: '누락',
+              recommendation: `"${fieldLabel}" 필드를 입력하세요.`,
+            })
+          }
         }
       }
     })
@@ -211,6 +261,48 @@ export function validateCompleteness(
       expected_value: '최소 1개 항목',
       actual_value: '0개',
       recommendation: '최소 하나 이상의 라인 항목을 추가하세요.',
+    })
+  } else {
+    // 라인 항목의 필드 완전성 검증
+    quote.line_items.forEach((item, index) => {
+      if (!item.description || item.description.trim() === '') {
+        findings.push({
+          submission_id: '',
+          severity: 'high',
+          category: 'completeness',
+          message: `라인 항목 ${index + 1}의 설명이 누락되었습니다`,
+          location: `라인 항목 ${index + 1}`,
+          expected_value: '설명 필요',
+          actual_value: '누락',
+          recommendation: '각 라인 항목에 설명을 입력하세요.',
+        })
+      }
+
+      if (item.quantity === 0 || item.quantity === undefined) {
+        findings.push({
+          submission_id: '',
+          severity: 'high',
+          category: 'completeness',
+          message: `라인 항목 ${index + 1}의 수량이 0이거나 누락되었습니다`,
+          location: `라인 항목 ${index + 1}`,
+          expected_value: '수량 > 0',
+          actual_value: String(item.quantity || 0),
+          recommendation: '유효한 수량을 입력하세요.',
+        })
+      }
+
+      if (item.unit_price === 0 || item.unit_price === undefined) {
+        findings.push({
+          submission_id: '',
+          severity: 'high',
+          category: 'completeness',
+          message: `라인 항목 ${index + 1}의 단가가 0이거나 누락되었습니다`,
+          location: `라인 항목 ${index + 1}`,
+          expected_value: '단가 > 0',
+          actual_value: String(item.unit_price || 0),
+          recommendation: '유효한 단가를 입력하세요.',
+        })
+      }
     })
   }
 

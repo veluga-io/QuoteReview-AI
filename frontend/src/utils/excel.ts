@@ -1,6 +1,20 @@
 import * as XLSX from 'xlsx'
 import type { ParsedQuote, QuoteMetadata, LineItem, QuoteTotals } from '../types/validation'
 
+export interface ExtractedField {
+  label: string
+  location: string
+  sample_value: string
+  field_type: 'metadata' | 'line_item' | 'total'
+}
+
+export interface TemplateAnalysis {
+  fields: ExtractedField[]
+  metadata_fields: ExtractedField[]
+  line_item_columns: ExtractedField[]
+  total_fields: ExtractedField[]
+}
+
 /**
  * Excel 파일을 읽어서 ParsedQuote 객체로 변환
  * @param file - 업로드된 Excel 파일
@@ -226,4 +240,143 @@ export function validateFileExtension(file: File): boolean {
   const allowedExtensions = ['.xlsx', '.xls', '.xlsm']
   const fileName = file.name.toLowerCase()
   return allowedExtensions.some(ext => fileName.endsWith(ext))
+}
+
+/**
+ * 템플릿 파일 분석 - 필드와 구조 자동 추출
+ * @param file - 템플릿 Excel 파일
+ * @returns 추출된 필드 정보
+ */
+export async function analyzeTemplateFile(file: File): Promise<TemplateAnalysis> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onload = e => {
+      try {
+        const data = e.target?.result
+        if (!data) {
+          throw new Error('파일을 읽을 수 없습니다')
+        }
+
+        const workbook = XLSX.read(data, { type: 'binary' })
+        const firstSheetName = workbook.SheetNames[0]
+        const worksheet = workbook.Sheets[firstSheetName]
+
+        const fields: ExtractedField[] = []
+        const metadata_fields: ExtractedField[] = []
+        const line_item_columns: ExtractedField[] = []
+        const total_fields: ExtractedField[] = []
+
+        // 메타데이터 필드 추출
+        const metadataLabels = [
+          '고객명',
+          'Customer',
+          '견적번호',
+          'Quote Number',
+          '견적일자',
+          'Quote Date',
+          '유효기한',
+          'Valid Until',
+          '통화',
+          'Currency',
+        ]
+
+        metadataLabels.forEach(label => {
+          const value = findCellValue(worksheet, label)
+          if (value) {
+            const field: ExtractedField = {
+              label,
+              location: findCellLocation(worksheet, label) || '',
+              sample_value: value,
+              field_type: 'metadata',
+            }
+            metadata_fields.push(field)
+            fields.push(field)
+          }
+        })
+
+        // 라인 항목 컬럼 추출 (테이블 헤더)
+        const lineItemLabels = [
+          '품목',
+          'Item',
+          '설명',
+          'Description',
+          '수량',
+          'Quantity',
+          '단가',
+          'Unit Price',
+          '금액',
+          'Amount',
+          'Total',
+        ]
+
+        lineItemLabels.forEach(label => {
+          const location = findCellLocation(worksheet, label)
+          if (location) {
+            const value = findCellValue(worksheet, label) || label
+            const field: ExtractedField = {
+              label,
+              location,
+              sample_value: value,
+              field_type: 'line_item',
+            }
+            line_item_columns.push(field)
+            fields.push(field)
+          }
+        })
+
+        // 총액 필드 추출
+        const totalLabels = ['소계', 'Subtotal', '할인', 'Discount', '세액', 'Tax', '총액', 'Total']
+
+        totalLabels.forEach(label => {
+          const value = findCellValue(worksheet, label)
+          if (value !== undefined) {
+            const field: ExtractedField = {
+              label,
+              location: findCellLocation(worksheet, label) || '',
+              sample_value: String(value),
+              field_type: 'total',
+            }
+            total_fields.push(field)
+            fields.push(field)
+          }
+        })
+
+        resolve({
+          fields,
+          metadata_fields,
+          line_item_columns,
+          total_fields,
+        })
+      } catch (error) {
+        reject(error)
+      }
+    }
+
+    reader.onerror = () => {
+      reject(new Error('파일 읽기 중 오류가 발생했습니다'))
+    }
+
+    reader.readAsBinaryString(file)
+  })
+}
+
+/**
+ * 워크시트에서 특정 레이블의 셀 위치를 찾습니다
+ */
+function findCellLocation(worksheet: XLSX.WorkSheet, label: string): string | undefined {
+  const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:Z100')
+
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ r: R, c: C })
+      const cell = worksheet[cellAddress]
+
+      if (cell && cell.v && String(cell.v).includes(label)) {
+        return cellAddress
+      }
+    }
+  }
+
+  return undefined
 }

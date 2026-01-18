@@ -84,8 +84,13 @@ async function executeValidation(
     const file = new File([fileBlob], filePath)
     const parsedQuote = await parseExcelFile(file)
 
+    console.log('📊 Parsed quote:', parsedQuote)
+    console.log('📋 Template required_fields:', template.required_fields)
+
     // 4. 검증 실행 (Layer 1 + Layer 2)
     const findings = await validateQuoteComplete(parsedQuote, template, submissionId)
+
+    console.log('🔍 Validation findings:', findings)
 
     // 5. Findings 저장
     if (findings.length > 0) {

@@ -155,25 +155,55 @@ export default function TemplateDetail() {
 
           <Divider sx={{ my: 3 }} />
 
+          {template.file_url && (
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                {t('templates.referenceFile', '참조 파일')}
+              </Typography>
+              <Chip
+                label={template.file_url.split('/').pop() || '템플릿 파일'}
+                color="primary"
+                variant="outlined"
+                sx={{ mt: 1 }}
+              />
+            </Box>
+          )}
+
+          <Divider sx={{ my: 3 }} />
+
           <Box sx={{ mb: 3 }}>
             <Typography variant="h6" gutterBottom>
-              {t('templates.requiredFields', '필수 필드')}
+              {t('templates.extractedFields', '추출된 필드')}
             </Typography>
             {Array.isArray(template.required_fields) && template.required_fields.length > 0 ? (
               <Box sx={{ mt: 2 }}>
-                {template.required_fields.map((field: unknown, index: number) => (
-                  <Chip
-                    key={index}
-                    label={typeof field === 'object' && field !== null && 'label' in field
-                      ? String(field.label)
-                      : String(field)}
-                    sx={{ mr: 1, mb: 1 }}
-                  />
-                ))}
+                {template.required_fields.map((field: unknown, index: number) => {
+                  const typedField = field as { label?: string; field_type?: string }
+                  return (
+                    <Chip
+                      key={index}
+                      label={
+                        typedField.label
+                          ? `${typedField.label} (${typedField.field_type || 'unknown'})`
+                          : String(field)
+                      }
+                      color={
+                        typedField.field_type === 'metadata'
+                          ? 'primary'
+                          : typedField.field_type === 'line_item'
+                          ? 'secondary'
+                          : 'default'
+                      }
+                      size="small"
+                      variant="outlined"
+                      sx={{ mr: 1, mb: 1 }}
+                    />
+                  )
+                })}
               </Box>
             ) : (
               <Typography variant="body2" color="text.secondary">
-                필수 필드가 설정되지 않았습니다
+                추출된 필드가 없습니다. 템플릿 파일을 업로드하여 필드를 자동으로 추출할 수 있습니다.
               </Typography>
             )}
           </Box>

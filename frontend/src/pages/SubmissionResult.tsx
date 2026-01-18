@@ -194,16 +194,87 @@ export default function SubmissionResult() {
             템플릿: {submission.templates.name}
           </Typography>
           <Typography variant="body2" color="text.secondary">
+            상태: {submission.status === 'completed' ? '검증 완료' : submission.status === 'validating' ? '검증 중' : submission.status === 'failed' ? '검증 실패' : '업로드됨'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
             검증 완료: {submission.validated_at ? new Date(submission.validated_at).toLocaleString('ko-KR') : '-'}
           </Typography>
+
+          {submission.metadata && typeof submission.metadata === 'object' && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle2" gutterBottom>
+                파싱된 메타데이터:
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {Object.entries(submission.metadata).map(([key, value]) => (
+                  <span key={key}>
+                    {key}: {String(value) || '(비어있음)'}<br />
+                  </span>
+                ))}
+              </Typography>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            검증 프로세스
+          </Typography>
+          <List dense>
+            <ListItem>
+              <ListItemText
+                primary="1. 수학적 검증"
+                secondary="라인 항목 합계, 소계, 세금, 총액 계산 검증"
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText
+                primary="2. 필수 항목 검증"
+                secondary="템플릿에서 추출된 필수 필드가 모두 입력되었는지 확인"
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText
+                primary="3. 정책 규칙 검증"
+                secondary="할인율 상한, 기타 비즈니스 규칙 준수 확인"
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText
+                primary="4. 일관성 검증"
+                secondary="통화 일치, 날짜 논리 확인"
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText
+                primary="5. AI 보조 검증"
+                secondary="Gemini AI가 추가적인 논리적 오류와 개선 사항을 분석"
+              />
+            </ListItem>
+          </List>
         </CardContent>
       </Card>
 
       {findings.length === 0 ? (
         <Alert severity="success" icon={<CheckIcon />}>
-          <Typography variant="h6">문제가 발견되지 않았습니다</Typography>
-          <Typography variant="body2">
-            모든 검증 항목을 통과했습니다. 견적서가 정상적으로 작성되었습니다.
+          <Typography variant="h6" gutterBottom>
+            ✅ 검증 통과
+          </Typography>
+          <Typography variant="body2" paragraph>
+            모든 검증 항목을 통과했습니다.
+          </Typography>
+          <Divider sx={{ my: 2 }} />
+          <Typography variant="subtitle2" gutterBottom>
+            검증된 항목:
+          </Typography>
+          <Typography variant="body2" component="div">
+            • 수학적 계산 (라인 항목, 소계, 세금, 총액)<br />
+            • 템플릿 필수 필드 완전성<br />
+            • 정책 규칙 준수<br />
+            • 데이터 일관성<br />
+            • AI 논리 검증
           </Typography>
         </Alert>
       ) : (

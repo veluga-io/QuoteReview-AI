@@ -72,14 +72,14 @@ export default function Submissions() {
       return
     }
 
-    if (!user?.id) {
+    if (!user?.profile?.id) {
       setError('로그인이 필요합니다')
       return
     }
 
     try {
       setUploading(true)
-      const { submission } = await createSubmission(selectedTemplateId, selectedFile, user.id)
+      const { submission } = await createSubmission(selectedTemplateId, selectedFile, user.profile.id)
 
       setUploading(false)
       setValidating(true)

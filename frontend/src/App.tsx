@@ -38,6 +38,7 @@ function AppContent() {
               <Route path="templates" element={<Templates />} />
               <Route path="templates/new" element={<TemplateNew />} />
               <Route path="templates/:id" element={<TemplateDetail />} />
+              <Route path="templates/:id/edit" element={<TemplateNew />} />
               <Route path="submissions" element={<Submissions />} />
               <Route path="submissions/:id" element={<SubmissionResult />} />
             </Route>
