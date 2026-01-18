@@ -61,7 +61,7 @@ function parseQuoteData(data: unknown[][], worksheet: XLSX.WorkSheet): ParsedQuo
   const lineItems: LineItem[] = extractLineItems(data)
 
   // 총액 추출
-  const totals: QuoteTotals = extractTotals(data, worksheet)
+  const totals: QuoteTotals = extractTotals(worksheet)
 
   return {
     metadata,
@@ -188,7 +188,7 @@ function extractLineItems(data: unknown[][]): LineItem[] {
 /**
  * 총액 정보 추출
  */
-function extractTotals(data: unknown[][], worksheet: XLSX.WorkSheet): QuoteTotals {
+function extractTotals(worksheet: XLSX.WorkSheet): QuoteTotals {
   const subtotal =
     Number(findCellValue(worksheet, '소계')) ||
     Number(findCellValue(worksheet, 'Subtotal')) ||

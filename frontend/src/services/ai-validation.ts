@@ -47,7 +47,6 @@ export function maskSensitiveData(quote: ParsedQuote): ParsedQuote {
     discount_amount: 0,
     tax_amount: 0,
     total: 0,
-    _totalRange: maskAmount(masked.totals.total),
   }
 
   return masked
